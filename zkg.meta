@@ -1,0 +1,6 @@
+[package]
+description = "This package generates a file called tls.log. The difference from ssl.log is that it is much more focused on logging all kinds of protocol features. This can be interesting for academic purposes - or if one is just interested in more information about specific features used in local TLS traffic."
+tags = TLS, SSL, X509, Certificates, PKI
+script_dir = scripts
+test_command = cd tests && make
+version = master
