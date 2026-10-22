@@ -11,4 +11,3 @@
 # @TEST-EXEC: zeek -r $TRACES/dtls1_2.pcap $SCRIPTS/tls.zeek %INPUT
 # @TEST-EXEC: cat tls.log >> tls-all.log
 # @TEST-EXEC: btest-diff tls-all.log
-

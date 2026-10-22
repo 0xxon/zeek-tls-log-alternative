@@ -16,7 +16,7 @@ export {
 	## any other hash function and the hashes in both log files will change
 	option hash_function: function(cert: string): string = sha256_hash;
 
-	## If set to true, a log-file containing all certificates will be greated.
+	## If set to true, a log-file containing all certificates will be created.
 	option log_certificates: bool = F;
 
 	type CertificateInfo: record {
@@ -37,7 +37,7 @@ export {
 	};
 
 	type TLSInfo: record {
-		## Timestamp when the conenction began.
+		## Timestamp when the connection began.
 		ts: time &log;
 		## Connection uid
 		uid: string &log;
@@ -78,9 +78,9 @@ export {
 		orig_alpn: vector of string &log &optional;
 		## Application layer protocol negotiation extension sent by the server.
 		resp_alpn: vector of string &log &optional;
-		## Alert. If the connection was closed with an TLS alers before being
+		## Alert. If the connection was closed with an TLS alerts before being
 		## completely established, this field contains the alert level and description
-		## numbers that were transfered
+		## numbers that were transferred
 		alert: vector of count  &log &optional;
 		## TLS 1.3 supported versions
 		client_supported_versions: vector of count &log &optional;
@@ -376,4 +376,3 @@ hook SSL::ssl_finishing(c: connection)
 
 	Log::write(TLSLog::TLS_LOG, c$tls_conns);
 	}
-

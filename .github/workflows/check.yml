@@ -1,0 +1,73 @@
+name: Zeek tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+  - cron: 0 0 * * *
+
+jobs:
+  pre-commit:
+    # Scheduled runs don't act on new commits, so skip pre-commit analysis
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
+    - uses: pre-commit/action@v3.0.1
+
+  btest-linux:
+    permissions:
+      # This is for action-junit-report, see
+      # https://github.com/mikepenz/action-junit-report?tab=readme-ov-file#pr-run-permissions
+      # https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+      checks: write
+    strategy:
+      matrix:
+        name:
+        - lts
+        - feature
+        - nightly
+        include:
+        - name: lts
+          container: zeek/zeek:lts
+          allow_failure: false
+        - name: feature
+          container: zeek/zeek:latest
+          allow_failure: false
+        - name: nightly
+          container: zeek/zeek-dev:latest
+          allow_failure: true
+
+    name: Run test suite against Zeek (${{ matrix.name }})
+
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+    continue-on-error: ${{ matrix.allow_failure }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        # The output of some commands of `zkg` on the template depends on the
+        # known tags. Fetch them all.
+        fetch-depth: 0
+
+    # The checkout action leaves the repo in a detached HEAD state which is not
+    # supported by zkg, see zeek/package-manager#145. Work around this under
+    # the assumption that we are running on a ref. The safe.directory option
+    # is now required and handled internally by Github actions (like checkout),
+    # but does not survive into this job, so we repeat it here.
+    - name: Prepare repository
+      run: |
+        /usr/bin/git config --global --add safe.directory $(pwd)
+        /usr/bin/git switch -c "gh-ci-$$"
+
+    - name: Run BTest suite
+      run: |
+        btest -djc tests/btest.cfg --xml=btest-results.xml
+    - uses: mikepenz/action-junit-report@v6
+      if: always() # Always run even if any previous step fails.
+      with:
+        report_paths: '**/btest-results.xml'
