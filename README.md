@@ -15,7 +15,7 @@ If you re-define the option ```TLSLog::log_certificates``` to true, you also get
 
 By default, certificate hashes are provided as sha256. If you want to use a different hash algorithm, you can redef ```TLSLog::hash_function``` to a different hash function, e.g. to ```sha1_hash```.
 
-The easiest way to install this pacjage is by using the package manager; just do
+The easiest way to install this package is by using the package manager; just do
 
 ```
 zkg install 0xxon/tls-log-alternative
